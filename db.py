@@ -16,14 +16,12 @@ class Song(db.Model):
     title = db.Column(db.String, nullable=False)
     album = db.Column(db.String, nullable=False)
     artist = db.Column(db.String, nullable=False)
-    favorite = db.Column(db.Boolean, nullable=False)
-    users = db.relationship("Song", secondary=user_song_association, back_populates="songs")
+    users = db.relationship("User", secondary=user_song_association, back_populates="fav_songs")
 
     def __init__(self, **kwargs):
         self.title = kwargs.get("title", "")
         self.album = kwargs.get("album", "")
         self.artist = kwargs.get("artist", "")
-        self.favorite = kwargs.get("favorite", "")
 
     def serialize(self):
         return {
@@ -31,7 +29,6 @@ class Song(db.Model):
             "title": self.title,
             "album": self.album,
             "artist": self.artist,
-            "favorite": self.favorite
         }
     
 class User(db.Model):
@@ -48,6 +45,7 @@ class User(db.Model):
         return {
             "id": self.id,
             "name": self.name,
+            "requests": [r.serialize() for r in self.requests],
             "fav_songs": [s.serialize() for s in self.fav_songs]
         }
 
@@ -58,14 +56,32 @@ class Request(db.Model):
     message = db.Column(db.String, nullable=False)
     completed = db.Column(db.Boolean, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    recommendations = db.relationship("Recommendation", cascade="delete")
 
     def __init__(self, **kwargs):
         self.message = kwargs.get("message", "")
         self.completed = kwargs.get("completed", "")
+        self.user_id = kwargs.get("user_id", "")
 
     def serialize(self):
         return {
             "id": self.id,
             "message": self.message,
             "completed": self.completed
+        }
+
+class Recommendation(db.Model):
+    __tablename__ = "recommendation"
+    id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.String, nullable=False)
+    request_id = db.Column(db.Integer, db.ForeignKey("request.id"), nullable=False)
+
+    def __init__(self, **kwargs):
+        self.message = kwargs.get("message", "")
+        self.request_id = kwargs.get("request_id", "")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "message": self.message
         }
