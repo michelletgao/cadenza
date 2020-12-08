@@ -2,7 +2,7 @@ import json
 import os
 
 from db import db
-from db import User, Song
+from db import User, Song, Request, Recommendation
 from flask import Flask
 from flask import request
 
@@ -72,22 +72,54 @@ def get_requests_by_user(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
         return failure_response("User not found!")
-    return success_response()
+    requests = user.serialize().get("requests")
+    if requests is None:
+        return failure_response("No requests found!")
+    return success_response(requests)
 
 @app.route("/api/users/<int:user_id>/requests/", methods=["POST"])
 def create_request(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return failure_response("User not found!")
     body = json.loads(request.data)
     message = body.get("message")
     if message is None:
         return failure_response("Invalid fields!")
-    new_request = Request(message=message, completed=False)
+    new_request = Request(message=message, completed=False, user_id=user_id)
     db.session.add(new_request)
     db.session.commit()
     return success_response(new_request.serialize(), 201)
 
-@app.route("/api/users/<int:user_id>/request/<int:request_id>/", methods=["POST"])
-def complete_request(user_id, request_id):
-    pass
+@app.route("/api/users/<int:user_id>/requests/<int:request_id>/", methods=["POST"])
+def end_request(user_id, request_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return failure_response("User not found!")
+    request = Request.query.filter_by(id=request_id).first()
+    if request is None:
+        return failure_response("Request not found!")
+
+    request.completed = True
+    return success_response(request.serialize(), 201)
+
+@app.route("/api/users/<int:user_id>/requests/<int:request_id>/recommend/", methods=["POST"])
+def create_recommendation(user_id, request_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return failure_response("User not found!")
+    request = Request.query.filter_by(id=request_id).first()
+    if request is None:
+        return failure_response("Request not found!")
+
+    body = json.loads(request.data)
+    message = body.get("message")
+    if message is None:
+        return failure_response("Invalid fields!")
+    new_recommendation = Recommendation(message=message)
+    db.session.add(new_recommendation)
+    db.session.commit()
+    return success_response(new_recommendation.serialize(), 201)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
