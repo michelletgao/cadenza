@@ -21,7 +21,6 @@ with app.app_context():
 def success_response(data, code=200):
     return json.dumps({"success": True, "data": data}), code
 
-
 def failure_response(message, code=404):
     return json.dumps({"success": False, "error": message}), code
 
@@ -67,6 +66,18 @@ def create_song():
     db.session.commit()
     return success_response(new_song.serialize(), 201)
 
+@app.route("/api/users/<int:user_id>/songs/<int:song_id>/", methods=["POST"])
+def favorite_song(user_id, song_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return failure_response("User not found!")
+    song = Song.query.filter_by(id=song_id).first()
+    if song is None:
+        return failure_response("Song not found!")
+    user.fav_songs.append(song)
+    db.session.commit()
+    return success_response(user.serialize().get("fav_songs"), 201)
+
 @app.route("/api/users/<int:user_id>/requests/")
 def get_requests_by_user(user_id):
     user = User.query.filter_by(id=user_id).first()
@@ -101,26 +112,29 @@ def end_request(user_id, request_id):
         return failure_response("Request not found!")
 
     request.completed = True
+    db.session.commit()
     return success_response(request.serialize(), 201)
 
-@app.route("/api/users/<int:user_id>/requests/<int:request_id>/recommend/", methods=["POST"])
-def create_recommendation(user_id, request_id):
+@app.route("/api/users/<int:user_id>/requests/<int:request_id>/recommend/<int:song_id>/", methods=["POST"])
+def create_recommendation(user_id, request_id, song_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
         return failure_response("User not found!")
-    request = Request.query.filter_by(id=request_id).first()
-    if request is None:
+    req = Request.query.filter_by(id=request_id).first()
+    if req is None:
         return failure_response("Request not found!")
+    song = Song.query.filter_by(id=song_id).first()
+    if song is None:
+        return failure_response("Song not found!")
 
     body = json.loads(request.data)
     message = body.get("message")
     if message is None:
         return failure_response("Invalid fields!")
-    new_recommendation = Recommendation(message=message)
+    new_recommendation = Recommendation(message=message, song=song, request_id=request_id)
     db.session.add(new_recommendation)
     db.session.commit()
     return success_response(new_recommendation.serialize(), 201)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=5000, debug=True)
