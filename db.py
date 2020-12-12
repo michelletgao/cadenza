@@ -82,7 +82,8 @@ class Request(db.Model):
         return {
             "id": self.id,
             "message": self.message,
-            "completed": self.completed
+            "completed": self.completed,
+            "recommendations": [r.serialize() for r in self.recommendations]
         }
 
 
@@ -102,5 +103,5 @@ class Recommendation(db.Model):
         return {
             "id": self.id,
             "message": self.message,
-            "song": self.song.serialize()
+            "song": [s.serialize() for s in self.songs]
         }
