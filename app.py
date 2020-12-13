@@ -5,6 +5,8 @@ from db import db
 from db import User, Song, Request, Recommendation
 from flask import Flask
 from flask import request
+from datetime import datetime
+
 
 app = Flask(__name__)
 db_filename = "cadenza.db"
@@ -33,12 +35,20 @@ def get_users():
 def create_user():
     body = json.loads(request.data)
     name = body.get("name")
-    if name is None:
+    username = body.get("username")
+    if (name is None) | (username is None):
         return failure_response("Invalid fields!")
-    new_user = User(name=name)
+    new_user = User(name=name, username=username)
     db.session.add(new_user)
     db.session.commit()
     return success_response(new_user.serialize(), 201)
+
+@app.route("/api/users/<int:user_id>/")
+def get_user_by_id(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return failure_response("User not found!")
+    return success_response(user.partial_serialize())
 
 @app.route("/api/users/<int:user_id>/", methods=["DELETE"])
 def delete_user(user_id):
@@ -94,10 +104,11 @@ def create_request(user_id):
     if user is None:
         return failure_response("User not found!")
     body = json.loads(request.data)
+    genre = body.get("genre")
     message = body.get("message")
-    if message is None:
+    if (message is None) | (genre is None):
         return failure_response("Invalid fields!")
-    new_request = Request(message=message, completed=False, user_id=user_id)
+    new_request = Request(genre=genre, message=message, timestamp=str(datetime.now()), completed=False, user_id=user_id)
     db.session.add(new_request)
     db.session.commit()
     return success_response(new_request.serialize(), 201)

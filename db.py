@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -44,44 +45,55 @@ class User(db.Model):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, nullable=False)
     requests = db.relationship("Request", cascade="delete")
     fav_songs = db.relationship("Song", secondary=user_song_association, back_populates="users")
 
     def __init__(self, **kwargs):
         self.name = kwargs.get("name", "")
+        self.username = kwargs.get("username", "")
 
     def serialize(self):
         return {
             "id": self.id,
             "name": self.name,
+            "username": self.username,
             "requests": [r.serialize() for r in self.requests],
-            "fav_songs": [s.serialize() for s in self.fav_songs]
+            "fav_songs": [s.serialize() for s in self.fav_songs],
         }
 
     def partial_serialize(self):
         return {
             "id": self.id,
-            "name": self.name
+            "name": self.name,
+            "username": self.username,
+            "fav_songs": self.fav_songs
         }
 
 
 class Request(db.Model):
     __tablename__ = "request"
     id = db.Column(db.Integer, primary_key=True)
+    genre = db.Column(db.String, nullable=False)
     message = db.Column(db.String, nullable=False)
+    timestamp = db.Column(db.String, nullable=False)
     completed = db.Column(db.Boolean, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     recommendations = db.relationship("Recommendation", cascade="delete")
 
     def __init__(self, **kwargs):
+        self.genre = kwargs.get("genre", "")
         self.message = kwargs.get("message", "")
+        self.timestamp = kwargs.get("timestamp", "")
         self.completed = kwargs.get("completed", "")
         self.user_id = kwargs.get("user_id", "")
 
     def serialize(self):
         return {
             "id": self.id,
+            "genre": self.genre,
             "message": self.message,
+            "timestamp": self.timestamp,
             "completed": self.completed,
             "recommendations": [r.serialize() for r in self.recommendations]
         }
