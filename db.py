@@ -17,6 +17,65 @@ song_rec_association = db.Table(
     db.Column("recommendation_id", db.Integer, db.ForeignKey("recommendation.id"))
 )
 
+friend_association = db.Table(
+    "friend_association",
+    db.Model.metadata,
+    db.Column("following_id", db.Integer, db.ForeignKey("user.id")),
+    db.Column("follower_id", db.Integer, db.ForeignKey("user.id"))
+)
+
+
+class User(db.Model):
+    __tablename__ = "user"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, nullable=False)
+    requests = db.relationship("Request", cascade="delete")
+    fav_songs = db.relationship("Song", secondary=user_song_association, back_populates="users")
+    following = db.relationship("User", secondary=friend_association, 
+    primaryjoin=friend_association.c.follower_id==id, secondaryjoin=friend_association.c.following_id==id,
+    back_populates="followers")
+    followers = db.relationship("User", secondary=friend_association, 
+    primaryjoin=friend_association.c.following_id==id, secondaryjoin=friend_association.c.follower_id==id, 
+    back_populates="following")
+
+    def __init__(self, **kwargs):
+        self.name = kwargs.get("name", "")
+        self.username = kwargs.get("username", "")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "username": self.username,
+            "requests": [r.serialize() for r in self.requests],
+            "fav_songs": [s.serialize() for s in self.fav_songs],
+        }
+
+    def basic_serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "username": self.username
+        }
+
+    def partial_serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "username": self.username,
+            "fav_songs": self.fav_songs
+        }
+
+    def friend_serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "username": self.username,
+            "following": [f.basic_serialize() for f in self.following],
+            "followers": [i.basic_serialize() for i in self.followers]
+        }
+
 
 class Song(db.Model):
     __tablename__ = "song"
@@ -38,36 +97,6 @@ class Song(db.Model):
             "title": self.title,
             "album": self.album,
             "artist": self.artist
-        }
-
-    
-class User(db.Model):
-    __tablename__ = "user"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    username = db.Column(db.String, nullable=False)
-    requests = db.relationship("Request", cascade="delete")
-    fav_songs = db.relationship("Song", secondary=user_song_association, back_populates="users")
-
-    def __init__(self, **kwargs):
-        self.name = kwargs.get("name", "")
-        self.username = kwargs.get("username", "")
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "username": self.username,
-            "requests": [r.serialize() for r in self.requests],
-            "fav_songs": [s.serialize() for s in self.fav_songs],
-        }
-
-    def partial_serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "username": self.username,
-            "fav_songs": self.fav_songs
         }
 
 

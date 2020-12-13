@@ -3,8 +3,7 @@ import os
 
 from db import db
 from db import User, Song, Request, Recommendation
-from flask import Flask
-from flask import request
+from flask import Flask, request, url_for, session, redirect
 from datetime import datetime
 
 
@@ -29,7 +28,7 @@ def failure_response(message, code=404):
 @app.route("/")
 @app.route("/api/users/")
 def get_users():
-    return success_response( [u.serialize() for u in User.query.all()] )
+    return success_response( [u.partial_serialize() for u in User.query.all()] )
 
 @app.route("/api/users/", methods=["POST"])
 def create_user():
@@ -48,7 +47,7 @@ def get_user_by_id(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
         return failure_response("User not found!")
-    return success_response(user.partial_serialize())
+    return success_response(user.serialize())
 
 @app.route("/api/users/<int:user_id>/", methods=["DELETE"])
 def delete_user(user_id):
@@ -58,6 +57,19 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
     return success_response(user.serialize())
+
+@app.route("/api/users/<int:user1_id>/follow/<int:user2_id>/", methods=["POST"])
+def follow_user(user1_id, user2_id):
+    user1 = User.query.filter_by(id=user1_id).first()
+    if user1 is None:
+        return failure_response("User not found!")
+    user2 = User.query.filter_by(id=user2_id).first()
+    if user2 is None:
+        return failure_response("User not found!")
+    user1.following.append(user2)
+    user2.followers.append(user1)
+    db.session.commit()
+    return success_response(user1.friend_serialize(), 201)
 
 @app.route("/api/songs/")
 def get_songs():
