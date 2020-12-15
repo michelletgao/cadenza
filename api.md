@@ -1,7 +1,12 @@
-get all users
-GET /api/users/
+# API Specification
+## Overview of app
 
-Response
+***
+## **Get all users**
+**GET** /api/users/
+
+##### Response
+ ```yaml
 {
     "success": true,
     "data": [
@@ -24,8 +29,9 @@ Response
         ...
     ]
 }
+```
 
-create a user
+## **Create a user**
 POST /api/users/
 Request
 {
