@@ -46,6 +46,7 @@ class User(db.Model):
             "username": self.username,
             "requests": [r.serialize() for r in self.requests],
             "fav_songs": [s.serialize() for s in self.fav_songs],
+            "friends": [f.basic_serialize() for f in self.friends]
         }
 
     def basic_serialize(self):
@@ -68,7 +69,7 @@ class User(db.Model):
             "id": self.id,
             "name": self.name,
             "username": self.username,
-            "friends": [f.basic_serialize() for f in self.friends],
+            "friends": [f.basic_serialize() for f in self.friends]
         }
 
 
