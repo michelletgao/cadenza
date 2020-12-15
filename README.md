@@ -3,11 +3,11 @@
  
  Backend Final Project Fall 2020
  
- This is the backend for Cadenza, an app that allows users to request and make song recommendations from their friends. 
+ This is the backend for Cadenza, an app that allows users to request and make song recommendations from their friends. Users can also favorite songs for themselves.
  
- In our relational database schema for our backend we have association tables for: users and songs; songs and recommendations; and friends(following and followers).
+ In the relational database schema for our backend, we have association tables for: users and songs, songs and recommendations, and users and users (to allow for friending). So, users can favorite their top songs, recommend songs in response to their friends' requests, and friend other users.
 
- We used the iTunes API for users to search songs that they can favorite and give as recommendations.
+Cadenza uses the iTunes Search API in order to allow user to search for songs that they favorite, or recommend to their friends. 
  
  Heroku server address: https://cadenzaapp.herokuapp.com
 
