@@ -1,5 +1,4 @@
 # API Specification
-## Overview of app
 
 ***
 ## **Get all users**
