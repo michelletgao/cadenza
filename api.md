@@ -32,14 +32,19 @@
 ```
 
 ## **Create a user**
-POST /api/users/
-Request
+**POST** /api/users/
+
+##### Request
+ ```yaml
 {
     "name": <USER INPUT FOR NAME>,
     "username": <USER INPUT FOR USERNAME>
 }
+```
 
-Response
+##### Response
+
+ ```yaml
 {   
     "success": true,
     "data": {
@@ -48,10 +53,14 @@ Response
         "username": <USER INPUT FOR USERNAME>
     }
 }
+```
 
-get a specific user by id
-GET /api/users/{user_id}/
-Response
+## **Get a specific user by id**
+**GET** /api/users/{user_id}/
+
+##### Response
+
+```yaml
 {
     "success": true,
     "data": {
@@ -63,10 +72,14 @@ Response
         "friends": [ <SERIALIZED USERS WITH JUST NAMES, USERNAMES> ... ]
     }
 }
+```
 
-delete a user
-DELETE /api/users/{user_id}/
-Response
+## **Delete a user**
+**DELETE** /api/users/{user_id}/
+
+##### Response
+
+```yaml
 {
     "success": true,
     "data": {
@@ -78,10 +91,13 @@ Response
         "friends": [ <SERIALIZED USERS WITH JUST NAMES, USERNAMES> ... ]
     }
 }
+```
 
-friend a user
-POST /api/users/{user1_id}/friend/{user2_id}/
-Response
+## **Friend a user**
+**POST** /api/users/{user1_id}/friend/{user2_id}/
+
+##### Response
+```yaml
 {
     "success": true,
     "data": {
@@ -98,10 +114,13 @@ Response
         
     }
 }
+```
 
-get all songs in the database
-GET /api/songs/
-Response
+## **Get all songs in the database**
+**GET** /api/songs/
+
+##### Response
+```yaml
 {
     "success": true,
     "data": [
@@ -120,10 +139,13 @@ Response
         ...
     ]
 }
+```
 
-add a song to the database
-POST /api/songs/
-Request
+## **Add a song to the database**
+**POST** /api/songs/
+
+##### Request
+```yaml
 {
     "title": <USER INPUT FOR TITLE>,
     "artist": <USER INPUT FOR ARTIST>
@@ -139,15 +161,20 @@ Response
         "album": <RETRIEVED INPUT FOR ALBUM>
     }
 }
+```
 
-search for songs
-POST /api/songs/search/
-Request
+## **Search for songs**
+**POST** /api/songs/search/
+
+##### Request
+```yaml
 {
     "search": <USER INPUT FOR SEARCH>
 }
+```
 
-Response
+##### Response
+```yaml
 {   "success": true,
     "data": [
         {
@@ -168,10 +195,13 @@ Response
         ...
     ]  
 }
+```
 
-get a specific song by id
-POST /api/songs/{song_id}/
-Response
+## **Get a specific song by id**
+**POST** /api/songs/{song_id}/
+
+##### Response
+```yaml
 {
     "success": true,
     "data": [
@@ -182,10 +212,14 @@ Response
             "album": <USER INPUT FOR ALBUM>
         }
     ]
+}
+```
 
-add a favorite song to a user
-POST /api/users/{user_id}/songs/{int:song_id}/
-Response
+## **Add a favorite song to a user**
+**POST** /api/users/{user_id}/songs/{int:song_id}/
+
+##### Response
+```yaml
 {
     "success": true,
     "data": {
@@ -195,10 +229,13 @@ Response
         "album": <USER INPUT FOR ALBUM>
     }
 }
+```
 
-get song requests of a specific user
-GET /api/users/{user_id}/requests/
-Response
+## **Get song requests of a specific user**
+**GET** /api/users/{user_id}/requests/
+
+##### Response
+```yaml
 {
     "success": true,
     "data": 
@@ -210,11 +247,14 @@ Response
             "completed": true or false,
             "recommendations": [ <SERIALIZED RECOMMENDATIONS>, ...]  
         }
-} 
+}
+```
 
-get a specific song request by id
-GET /api/users/requests/{request_id}/
-Response
+## **Get a specific song request by id**
+**GET** /api/users/requests/{request_id}/
+
+##### Response
+```yaml
 {
     "success": true,
     "data": {
@@ -226,16 +266,21 @@ Response
         "recommendations": [ <SERIALIZED RECOMMENDATIONS>, ...]
     }
 }
+```
 
-create a song request for a user
-POST /api/users/{user_id}/requests/
-Request
+## **Create a song request for a user**
+**POST** /api/users/{user_id}/requests/
+
+##### Request
+```yaml
 {
     "genre": <USER INPUT FOR GENRE>,
     "message": <USER INPUT FOR MESSAGE>,
 }
+```
 
-Response
+##### Response
+```yaml
 {
     "success": true,
     "data": {
@@ -247,10 +292,13 @@ Response
         "recommendations": []
     }
 }
+```
 
-end a song request for a user
-POST /api/users/requests/{request_id}/
-Response
+## **Create a song request for a user**
+**POST** /api/users/requests/{request_id}/
+
+##### Response
+```yaml
 {
     "success": true,
     "data": {
@@ -262,15 +310,20 @@ Response
         "recommendations": [ <SERIALIZED RECOMMENDATIONS>, ...]
     }
 }
+```
 
-create a song recommendation for a song request
-POST /api/users/requests/{request_id/}recommend/{song_id}/
-Request
+## **Create a song recommendation for a song request**
+**POST** /api/users/requests/{request_id/}recommend/{song_id}/
+
+##### Request
+```yaml
 {
     "message": <USER INPUT FOR MESSAGE>
 }
+```
 
-Response:
+##### Response:
+```yaml
 {
     "success": true,
     "data": {
@@ -279,9 +332,13 @@ Response:
         "song": [ <SERIALIZED SONG> ]
     }
 }
-get a specific song recommendation by id
-GET /api/recommendations/{rec_id}/
-Response
+```
+
+## **Get a specific song recommendation by id**
+**GET** /api/recommendations/{rec_id}/
+
+##### Response
+```yaml
 {
     "success": true,
     "data": {
@@ -290,3 +347,4 @@ Response
         "song": [ <SERIALIZED SONGS> ]      
     }
 }
+```
