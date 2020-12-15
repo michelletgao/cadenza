@@ -32,12 +32,8 @@ class User(db.Model):
     username = db.Column(db.String, nullable=False)
     requests = db.relationship("Request", cascade="delete")
     fav_songs = db.relationship("Song", secondary=user_song_association, back_populates="users")
-    following = db.relationship("User", secondary=friend_association, 
-    primaryjoin=friend_association.c.follower_id==id, secondaryjoin=friend_association.c.following_id==id,
-    back_populates="followers")
-    followers = db.relationship("User", secondary=friend_association, 
-    primaryjoin=friend_association.c.following_id==id, secondaryjoin=friend_association.c.follower_id==id, 
-    back_populates="following")
+    friends = db.relationship("User", secondary=friend_association, 
+    primaryjoin=friend_association.c.follower_id==id, secondaryjoin=friend_association.c.following_id==id)
 
     def __init__(self, **kwargs):
         self.name = kwargs.get("name", "")
@@ -72,8 +68,7 @@ class User(db.Model):
             "id": self.id,
             "name": self.name,
             "username": self.username,
-            "following": [f.basic_serialize() for f in self.following],
-            "followers": [i.basic_serialize() for i in self.followers]
+            "friends": [f.basic_serialize() for f in self.friends],
         }
 
 
@@ -81,22 +76,22 @@ class Song(db.Model):
     __tablename__ = "song"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
-    album = db.Column(db.String, nullable=False)
     artist = db.Column(db.String, nullable=False)
+    album = db.Column(db.String, nullable=False)
     users = db.relationship("User", secondary=user_song_association, back_populates="fav_songs")
-    recommendations = db.relationship("Recommendation", secondary=song_rec_association, back_populates="songs")
+    recommendations = db.relationship("Recommendation", secondary=song_rec_association, back_populates="song")
 
     def __init__(self, **kwargs):
         self.title = kwargs.get("title", "")
-        self.album = kwargs.get("album", "")
         self.artist = kwargs.get("artist", "")
+        self.album = kwargs.get("album", "")
 
     def serialize(self):
         return {
             "id": self.id,
             "title": self.title,
-            "album": self.album,
-            "artist": self.artist
+            "artist": self.artist,
+            "album": self.album
         }
 
 
@@ -133,16 +128,15 @@ class Recommendation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.String, nullable=False)
     request_id = db.Column(db.Integer, db.ForeignKey("request.id"), nullable=False)
-    songs = db.relationship("Song", secondary=song_rec_association, back_populates="recommendations")
+    song = db.relationship("Song", secondary=song_rec_association, back_populates="recommendations")
 
     def __init__(self, **kwargs):
         self.message = kwargs.get("message", "")
-        self.song = kwargs.get("song", "")
         self.request_id = kwargs.get("request_id", "")
 
     def serialize(self):
         return {
             "id": self.id,
             "message": self.message,
-            "song": [s.serialize() for s in self.songs]
+            "song": [i.serialize() for i in self.song]
         }

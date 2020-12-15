@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  cadenza:
+    image: michellegao/cadenza
+    ports:
+      - "5000:5000"
